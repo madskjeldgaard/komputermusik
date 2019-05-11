@@ -5,5 +5,19 @@
  / ,< / /_/ / / / / / / /_/ / /_/ / /_/  __/ /  / / / / / / /_/ (__  ) / ,<   
 /_/|_|\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/  /_/ /_/ /_/\__,_/____/_/_/|_|  
                     /_/                                                       
-                          
+( 
+// DEPENDENCIES:
+
+Quarks.install("https://github.com/madskjeldgaard/Particular.git");
+Quarks.install("BenoitLib");
+
+)
 */
+
+/***************** SETUP *****************/
+( 
+    p = Particular.new;
+
+)
+/***************** SYNTHDEFS *****************/
+
