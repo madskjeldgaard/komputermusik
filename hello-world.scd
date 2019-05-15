@@ -185,6 +185,10 @@ MasterFX.all
 // MasterFX.clear('localhost')
 )
 /***************** GUI *****************/
+// Specs
+( 
+ControlSpec.specs['offset'] = ControlSpec.new(0.0, 1.0, 'lin', 0.001, nil,  units: nil,  grid: nil);
+)
 (
 Ndef(\blip1).gui;
 Ndef(\blip2).gui;
@@ -209,3 +213,4 @@ Ndef(\blip2).stop;
 
 Pdef(\byo).play;
 Pdef(\byo).stop;
+
