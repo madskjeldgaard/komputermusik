@@ -187,7 +187,7 @@ MasterFX.all
 /***************** GUI *****************/
 // Specs
 ( 
-ControlSpec.specs['offset'] = ControlSpec.new(0.0, 1.0, 'lin', 0.001, nil,  units: nil,  grid: nil);
+ControlSpec.specs['offset'] = ControlSpec.new(0.0, 1.0, 'lin', 0.001);
 )
 (
 Ndef(\blip1).gui;
