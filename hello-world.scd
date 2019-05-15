@@ -1,10 +1,7 @@
 /*
-__                               __                                 _ __
-/ /______  ____ ___  ____  __  __/ /____  _________ ___  __  _______(_) /__
-/ //_/ __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/ __ `__ \/ / / / ___/ / //_/
-/ ,< / /_/ / / / / / / /_/ / /_/ / /_/  __/ /  / / / / / / /_/ (__  ) / ,<
-/_/|_|\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/  /_/ /_/ /_/\__,_/____/_/_/|_|
-/_/
+
+hello world
+
 (
 // DEPENDENCIES:
 
@@ -89,7 +86,7 @@ Ndef(\svend2).map(\curve, Ndef(\slowsvend));
 // FUNCTIONS
 ~lyd.blip = {|self, freq=0.25, numharm=0.1, freqoffset=0.2, amp=0.23|
 	var minfreq=20, maxfreq=5000;
-	Blip.ar(
+    Blip.ar(
 		freqoffset.linexp(0.0,1.0,minfreq,maxfreq) + freq.linexp(0.0,1.0,minfreq,maxfreq) + [0, - 1], // [0, -1] er bare stereo effekt hehe
 		numharm.linexp(0.0,1.0,1,500) - [1, 0],   // SAMME HER
 		mul: amp,
@@ -140,7 +137,7 @@ Ndef(\blip2, ~lyd[\blip]).mold(2, 'audio');
             \amp, Pkr(Ndef(\sinesvend)).linexp(-1.0,1.0,4.0,0.1),
             \start, Psrp(0.1).abs,
             \rate, Pdefn(\graingate1) * Pstep([0.2,0.3,0.123,0.25,0.3],4,inf)+Psrpmod(0.01, 0.6).linlin(-1.0,1.0,-0.01,0.01),
-        ).trace(\amp);
+        );
     )
 )
 /***************** MASTERFX *****************/
