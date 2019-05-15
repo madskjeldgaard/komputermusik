@@ -184,12 +184,11 @@ MasterFX.all
 // Clear all
 // MasterFX.clear('localhost')
 )
-/***************** PLAY *****************/
+/***************** GUI *****************/
 (
-Ndef(\blip1).gui.play;
-Ndef(\blip2).gui.play;
+Ndef(\blip1).gui;
+Ndef(\blip2).gui;
 )
-
 (
 // Modulation guis
 Ndef(\svend1).gui;
@@ -197,10 +196,16 @@ Ndef(\svend2).gui;
 Ndef(\sinesvend).gui;
 Ndef(\slowsvend).gui;
 )
+/***************** PLAY *****************/
+(
+Ndef(\blip1).play;
+Ndef(\blip2).play;
+)
 
 (
 Ndef(\blip1).stop;
 Ndef(\blip2).stop;
 )
 
-Pdef(\byo).play
+Pdef(\byo).play;
+Pdef(\byo).stop;
