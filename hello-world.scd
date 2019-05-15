@@ -18,7 +18,8 @@ Quarks.install("JITLibExtensions")
 (
 p = Particular.new;
 
-// SYNTH DEFS
+// Number of speakers 
+~numChannels = 2;
 
 // BUFFERS
 
@@ -86,12 +87,12 @@ Ndef(\svend2).map(\curve, Ndef(\slowsvend));
 ~lyd = ();
 
 // FUNCTIONS
-~lyd.blip = {|self, freq=0.25, numharm=0.1, freqoffset=0.2|
+~lyd.blip = {|self, freq=0.25, numharm=0.1, freqoffset=0.2, amp=0.23|
 	var minfreq=20, maxfreq=5000;
 	Blip.ar(
 		freqoffset.linexp(0.0,1.0,minfreq,maxfreq) + freq.linexp(0.0,1.0,minfreq,maxfreq) + [0, - 1], // [0, -1] er bare stereo effekt hehe
 		numharm.linexp(0.0,1.0,1,500) - [1, 0],   // SAMME HER
-		mul: 0.5,
+		mul: amp,
 		add: 0.0
 	).tanh;
 };
@@ -112,25 +113,67 @@ Pdef(\byo,
 			Pstep([p.def("m", "buf1"), p.def("revperc", "buf1")], 2, 4),
 			Pxrand([p.def("quasi", "buf1"), p.def("perc", "buf1"),p.def("welch", "buf1")], 90),
 		], inf),
-		\dur, Pwhite(0.08, 0.15),
+		\dur, Pkr(Ndef(\svend2)).linlin(-1.0,1.0,0.5,1.5) * Pwhite(0.08, 0.15),
 		\sustain, Pwhite(0.0,39.0) + 3.6 + Pkey(\dur) * (Pkey(\dur)*10000).reciprocal + 0.2,
-		\buffer, Pstep([~buffs[0],~buffs[2],~buffs[3],~buffs[4],~buffs[5]], 10, inf),
+		\buffer, Pstep([~bfs[0],~bfs[2],~bfs[3],~bfs[4],~bfs[5]], 10, inf),
 		\amp, 0.5+Pwhite(0.0,0.2),
 		\start, Psrp(0.1).abs,
 		\rate, Pstep([0.2,0.3,0.123,0.25,0.3],4,inf)+Psrpmod(0.01, 0.6).linlin(-1.0,1.0,-0.01,0.01),
 	));
 )
 
+/***************** MASTERFX *****************/
+(
+// define which FX are going to be used.
+// As MasterFX is based on ProxyChain, these FX are the same as in ProxyChain.
+ProxyChain.add3(
+    \leakDC,  \filter -> { |in, leak=0.99| LeakDC.ar(in, leak) },
+    1,
+    (\leak: [0.5, 0.999, \exp])
+);    
+
+ProxyChain.add3(
+    \limiter, \filter -> { |in, drive=1, ampLimit=0.8 |
+        Limiter.ar(in * drive, ampLimit);
+    },
+    1,
+    (
+        \drive: [1, 10, \exp],
+        \ampLimit: \amp
+    )
+);
+
+// An 8-channel MasterFX on server s.
+// The order in slotNames determines order of execution of the efx.
+m = MasterFX.new(server: s,
+    numChannels: ~numChannels,
+    slotNames: [\leakDC, \limiter],
+    busIndex: 0
+);
+
+m.add(\leakDC, 1);
+m.set(\leak, 0.9); // filter lows
+
+// Limiter
+m.add(\limiter, 1);  // limit output
+
+// overdrive!!!!!!!
+// m.set(\drive, 10, 0.3); 
+
+MasterFX.all
+)
 /***************** PLAY *****************/
 (
 Ndef(\blip1).play;
 Ndef(\blip2).play;
 )
 
+(
+Ndef(\blip1).stop;
+Ndef(\blip2).stop;
+)
+
 Pdef(\byo).play
 
-
-
-
-
-
+MasterFX.all['localhost']
+MasterFX.clear('localhost')
