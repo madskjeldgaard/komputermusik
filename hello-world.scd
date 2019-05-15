@@ -11,7 +11,7 @@ __                               __                                 _ __
 Quarks.install("https://github.com/madskjeldgaard/Particular.git");
 Quarks.install("BenoitLib");
 Quarks.install("JITLibExtensions")
-
+Quarks.install("https://github.com/madskjeldgaard/Else")
 )
 */
 /***************** SETUP *****************/
@@ -64,7 +64,7 @@ p.postEnvs;
 
 // NDEFS
 Ndef(\svend1, ~mod[\trigz]);
-Ndef(\svend2, ~mod[\trigz]).set(\atk, 0.25, \rel, rrand(0.2,0.75));
+Ndef(\svend2, ~mod[\trigz]).set(\atk, 0.25, \rel, rrand(0.2,0.75), \trigrate,0.1);
 
 Ndef(\slowsvend, {
 	Ndef(\svend1).kr.lag3
@@ -104,24 +104,45 @@ Ndef(\blip2, ~lyd[\blip]).mold(2, 'audio');
 
 /***************** PATTERNS *****************/
 
-( // beware dc?
-Pdef(\byo,
-	Pbind(
-		\out, [0,1],
-		\instrument,
-		Pseq([
-			Pstep([p.def("m", "buf1"), p.def("revperc", "buf1")], 2, 4),
-			Pxrand([p.def("quasi", "buf1"), p.def("perc", "buf1"),p.def("welch", "buf1")], 90),
-		], inf),
-		\dur, Pkr(Ndef(\svend2)).linlin(-1.0,1.0,0.5,1.5) * Pwhite(0.08, 0.15),
-		\sustain, Pwhite(0.0,39.0) + 3.6 + Pkey(\dur) * (Pkey(\dur)*10000).reciprocal + 0.2,
-		\buffer, Pstep([~bfs[0],~bfs[2],~bfs[3],~bfs[4],~bfs[5]], 10, inf),
-		\amp, 0.5+Pwhite(0.0,0.2),
-		\start, Psrp(0.1).abs,
-		\rate, Pstep([0.2,0.3,0.123,0.25,0.3],4,inf)+Psrpmod(0.01, 0.6).linlin(-1.0,1.0,-0.01,0.01),
-	));
-)
+( 
 
+    // PATTERN ATOMS
+    Pdefn(\outseq, Pseq(~numChannels.collect{|i|i}, inf));
+
+    // Når dette pattern er færdig...
+    Pdefn(\grainseq1,
+        Pn(
+            Pseq([
+                Pstep([p.def("m", "buf1"), p.def("revperc", "buf1")], 2, 4),
+                Pxrand([p.def("quasi", "buf1"), p.def("perc", "buf1"),p.def("click", "buf1")], 90),
+            ], 1),
+            repeats: inf, 
+            key: \grainseqdone1)
+        );
+
+    // ... aktiveres dette pattern. 
+    Pdefn(\graingate1, 
+        Pgate.new(
+            Pwhite(0.75, 2.0),
+            repeats: inf,  
+            key: \grainseqdone1
+        )
+    );
+
+    // PATTERNS
+    Pdef(\byo,
+        Pbind(
+            \out, Pdefn(\outseq),
+            \instrument, Pdefn(\grainseq1),
+            \dur, Pkr(Ndef(\sinesvend)).linlin(-1.0,1.0,0.25,2.5) * Pwhite(0.08, 0.15),
+            \sustain, Pwhite(0.0,39.0) + 3.6 + Pkey(\dur) * (Pkey(\dur)*10000).reciprocal + 0.2,
+            \buffer, Pstep([~bfs[0],~bfs[2],~bfs[3],~bfs[4],~bfs[5]], 10, inf),
+            \amp, Pkr(Ndef(\sinesvend)).linexp(-1.0,1.0,4.0,0.1),
+            \start, Psrp(0.1).abs,
+            \rate, Pdefn(\graingate1) * Pstep([0.2,0.3,0.123,0.25,0.3],4,inf)+Psrpmod(0.01, 0.6).linlin(-1.0,1.0,-0.01,0.01),
+        ).trace(\amp);
+    )
+)
 /***************** MASTERFX *****************/
 (
 // define which FX are going to be used.
@@ -160,12 +181,16 @@ m.add(\limiter, 1);  // limit output
 // overdrive!!!!!!!
 // m.set(\drive, 10, 0.3); 
 
+// See all
 MasterFX.all
+
+// Clear all
+// MasterFX.clear('localhost')
 )
 /***************** PLAY *****************/
 (
-Ndef(\blip1).play;
-Ndef(\blip2).play;
+Ndef(\blip1).gui.play;
+Ndef(\blip2).gui.play;
 )
 
 (
@@ -174,6 +199,3 @@ Ndef(\blip2).stop;
 )
 
 Pdef(\byo).play
-
-MasterFX.all['localhost']
-MasterFX.clear('localhost')
