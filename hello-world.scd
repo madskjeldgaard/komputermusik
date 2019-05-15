@@ -191,6 +191,14 @@ Ndef(\blip2).gui.play;
 )
 
 (
+// Modulation guis
+Ndef(\svend1).gui;
+Ndef(\svend2).gui;
+Ndef(\sinesvend).gui;
+Ndef(\slowsvend).gui;
+)
+
+(
 Ndef(\blip1).stop;
 Ndef(\blip2).stop;
 )
