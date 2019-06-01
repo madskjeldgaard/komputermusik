@@ -54,21 +54,36 @@
 
 
 (
-Ndef(\gst).fadeTime_(0.1);
-Ndef(\gst, {arg p0 = 0.89, p1 = 0.01;
+Ndef(\a).fadeTime_(0.1);
+Ndef(\a, {arg p0 = 0.69, p1 = 0.1;
 	var sig, sum, res, freq;
 	res = 2*p0;
 	freq = 1e3*p1;
-	sig = LPF18.ar(DPW4Saw.ar(LFNoise0.ar(0.1 * Ndef(\gst).ar)), 0.1 % Ndef(\gst).ar, res);
-	sum = Limiter.ar(SinOsc.ar([sig%freq,sig%freq]/sig),0.2);
+	sig = LPF18.ar(DPW4Saw.ar(LFNoise0.ar(0.1 * Ndef(\a).ar)), 0.1 % Ndef(\a).ar, res);
+	sum = Limiter.ar(SinOsc.ar([sig%freq,sig%freq/pi]/sig),0.2);
 	LeakDC.ar(Splay.ar(sum.flatten).clip2(0.99));
 }).mold(2, 'audio').play
 )
 
-Ndef(\gst)[1] = \filter -> {|in| PitchShift.ar(in, pitchRatio: 3)}
+Ndef(\a)[1] = \filter -> {|in| PitchShift.ar(in, pitchRatio: 1.2)}
+
+Ndef(\a).set(\p0, 0.2, \p1, 0.02)
 
 
-
+// klassik sheit
+(
+Ndef(\c, {
+	var sig;
+	t=(1..5);
+	d=LFDNoise0.kr(1).range(0.5,7);
+	f=t*99*d*LFDNoise3.kr(2);
+	e=t/20; // trigg 'slap af' faktor
+	k=SinGrain.ar([Dust.ar(e),Dust.ar(e)],d,f).sum;
+	k=PitchShift.ar(k, 0.5, Ndef(\b).ar.linlin(-1.0,1.0,0.5,2.5));
+	sig=Squiz.ar(k!2,0.3,1,0.1).flatten * 0.25; // potent sheis
+	Splay.ar(LeakDC.ar(sig.clip2(1.0))) * 0.3 // potent sheis
+}).play
+)
 
 
 
